@@ -1,2 +1,2 @@
 # Machine-Learning-Engineering
-Repo for machine learnign engineering projects
+Repo for machine learning engineering projects
