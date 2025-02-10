@@ -1,0 +1,57 @@
+
+from azure.ai.ml import MLClient
+from azure.ai.ml import MLClient
+from azure.identity import (
+    DefaultAzureCredential,
+    InteractiveBrowserCredential,
+    ClientSecretCredential,
+)
+
+try:
+    credential = DefaultAzureCredential()
+    credential.get_token("https://management.azure.com/.default")
+except Exception as ex:
+    credential = InteractiveBrowserCredential()
+
+try:
+    ml_client = MLClient.from_config(credential=credential)
+except:
+    ml_client = MLClient(
+        credential,
+        subscription_id="b1416642-757f-47a4-9992-7ab7a097f641",
+        resource_group_name="gcgs-uks-internal-reporting-production",
+        workspace_name="gcgs_machine_learning",
+)
+
+
+registry_ml_client = MLClient(credential, registry_name="azureml")
+from azure.ai.ml.entities import (
+    ManagedOnlineEndpoint,
+    ManagedOnlineDeployment,
+    Model,
+    Environment,
+    CodeConfiguration,
+)
+registry_name = "HuggingFace"
+model_name = "bert-base-uncased"
+model_id = 'azureml://registries/azureml/models/bert-base-uncased/versions/17'
+
+
+
+
+
+import time
+endpoint_name="hf-ep-" + str(int(time.time())) # endpoint name must be unique per Azure region, hence appending timestamp 
+ml_client.begin_create_or_update(ManagedOnlineEndpoint(name=endpoint_name) ).wait()
+
+ml_client.online_deployments.begin_create_or_update(ManagedOnlineDeployment(
+    name="demo",
+    endpoint_name=endpoint_name,
+    model= model_id,
+    instance_type="Standard_DS4_v2",
+    instance_count=1,
+)).wait()
+
+endpoint = ml_client.online_endpoints.get(endpoint_name)
+endpoint.traffic = {"demo": 100}
+ml_client.begin_create_or_update(endpoint).result()
