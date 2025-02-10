@@ -24,7 +24,6 @@ except:
 )
 
 
-registry_ml_client = MLClient(credential, registry_name="azureml")
 from azure.ai.ml.entities import (
     ManagedOnlineEndpoint,
     ManagedOnlineDeployment,
@@ -32,7 +31,7 @@ from azure.ai.ml.entities import (
     Environment,
     CodeConfiguration,
 )
-registry_name = "HuggingFace"
+
 model_name = "bert-base-uncased"
 model_id = 'azureml://registries/azureml/models/bert-base-uncased/versions/17'
 
